@@ -12,7 +12,8 @@ Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalank
 1. **Clone repository** dan masuk ke folder:
 
    ```bash
-   git clone https://github.com/masbad123/dawn-auto-bot   cd dawn-auto-bot
+   git clone https://github.com/masbad123/dawn-auto-bot
+   cd dawn-auto-bot
 2. **Install dependencies**:
 
    ```bash
@@ -26,6 +27,7 @@ Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalank
     "refresh_token": "your_refresh_token"
   }
 ]
+
 4. **Jalankan bot**:
 
    ```bash
