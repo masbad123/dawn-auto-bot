@@ -1,7 +1,30 @@
+require("dotenv").config();
 const axios = require("axios");
 const fs = require("fs");
 
 const ACCOUNT_FILE = "./account.json";
+
+async function loginWithEmailPassword(email, password) {
+  try {
+    const res = await axios.post("https://api.dawn.gg/v1/auth/login", {
+      email,
+      password,
+    });
+
+    const { token, refresh_token, user } = res.data;
+
+    fs.writeFileSync(
+      ACCOUNT_FILE,
+      JSON.stringify({ email: user.email, token, refresh_token }, null, 2)
+    );
+
+    console.log("✅ Login sukses untuk:", user.email);
+    return { token, refresh_token };
+  } catch (err) {
+    console.error("❌ Gagal login:", err.response?.data || err.message);
+    return null;
+  }
+}
 
 async function refreshToken(email, refreshToken) {
   try {
@@ -12,16 +35,15 @@ async function refreshToken(email, refreshToken) {
     const newToken = res.data.token;
     const user = res.data.user;
 
-    console.log("✅ Token refreshed for:", user.email);
-
     fs.writeFileSync(
       ACCOUNT_FILE,
-      JSON.stringify({ email: user.email, token: newToken }, null, 2)
+      JSON.stringify({ email: user.email, token: newToken, refresh_token: refreshToken }, null, 2)
     );
 
+    console.log("🔄 Token di-refresh untuk:", user.email);
     return newToken;
-  } catch (error) {
-    console.error("❌ Failed to refresh token:", error.response?.data || error.message);
+  } catch (err) {
+    console.error("❌ Gagal refresh token:", err.response?.data || err.message);
     return null;
   }
 }
@@ -29,32 +51,38 @@ async function refreshToken(email, refreshToken) {
 async function keepAlive(token, email) {
   try {
     await axios.get("https://api.dawn.gg/v1/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log("🟢 Keep-alive success for:", email);
-  } catch (error) {
-    console.error("❌ Keep-alive failed for:", email, "-", error.response?.status || error.message);
+    console.log("🟢 Keep-alive berhasil:", email);
+  } catch (err) {
+    console.error("❌ Gagal keep-alive:", err.response?.status || err.message);
   }
 }
 
 async function main() {
-  if (!fs.existsSync(ACCOUNT_FILE)) {
-    console.error("❌ account.json not found");
+  const email = process.env.EMAIL;
+  const password = process.env.PASSWORD;
+
+  if (!email || !password) {
+    console.error("❌ EMAIL dan PASSWORD belum diatur di .env");
     return;
   }
 
-  const account = JSON.parse(fs.readFileSync(ACCOUNT_FILE, "utf8"));
-  let { email, token } = account;
+  if (!fs.existsSync(ACCOUNT_FILE)) {
+    const login = await loginWithEmailPassword(email, password);
+    if (!login) return;
+  }
 
-  const newToken = await refreshToken(email, token);
+  const account = JSON.parse(fs.readFileSync(ACCOUNT_FILE, "utf8"));
+  let { token, refresh_token } = account;
+
+  const newToken = await refreshToken(email, refresh_token);
   if (!newToken) return;
 
   setInterval(() => {
     keepAlive(newToken, email);
-  }, 60 * 1000); // tiap 60 detik
+  }, 60 * 1000);
 }
 
 main();
