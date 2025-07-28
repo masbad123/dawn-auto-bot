@@ -1,46 +1,32 @@
-# Dawn Auto Bot
+# dawn-auto-bot
 
-Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalankan **keep-alive** session setiap 60 detik.
+Bot otomatis untuk login, refresh token, dan keep-alive ke API dawn.gg.
 
-## ✨ Fitur
-- ✅ Login otomatis via email & password (`.env`)
-- 🔄 Refresh token otomatis
-- 🟢 Keep-alive session setiap menit
-- 📦 Disimpan lokal ke `account.json`
+## Cara Install & Jalankan
 
----
-
-## 📦 Cara Install
-
-1. Clone repo ini:
-   ```bash
-   git clone https://github.com/masbad123/dawn-auto-bot
-   cd dawn-auto-bot
-   ```
-
-2. Install dependencies:
+1. **Clone repo ini.**
+2. **Install dependencies:**
    ```bash
    npm install
    ```
-
-3. Buat file `.env`:
+3. **Buat file `.env` berdasarkan `.env.example`:**
+   ```
+   EMAIL=your@email.com
+   PASSWORD=your_password
+   ```
+4. **Jalankan bot:**
    ```bash
-   nano .env
+   npm start
    ```
+5. **Catatan:**  
+   - Jangan commit file `.env` dan `account.json` ke repo publik.
+   - Token otomatis di-refresh setiap 30 menit, keep-alive tiap 1 menit.
 
-   Isi dengan format berikut:
-   ```
-   EMAIL=youremail@example.com
-   PASSWORD=yourpassword
-   ```
+## Kebutuhan
 
-4. Jalankan bot:
-   ```bash
-   node index.js
-   ```
+- Node.js terbaru
+- Akun aktif dawn.gg
 
----
+## Lisensi
 
-
-## ❤️ Credits
-Made by [@masbad123](https://github.com/masbad123)
+MIT
