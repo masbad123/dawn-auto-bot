@@ -12,22 +12,21 @@ Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalank
 1. **Clone repository** dan masuk ke folder:
 
    ```bash
-   git clone https://github.com/masbad123/dawn-auto-bot
-   cd dawn-auto-bot
-2.Install dependencies:
+   git clone https://github.com/masbad123/dawn-auto-bot   cd dawn-auto-bot
+2. **Install dependencies**:
+
    ```bash
    npm install
+3. **Masukkan akun ke dalam** account.json dengan format seperti ini::
 
-3.Masukkan akun ke dalam account.json dengan format seperti ini:
-   ```bash
-   [
+   ```json
+  [
   {
     "email": "youremail@example.com",
     "refresh_token": "your_refresh_token"
   }
 ]
+4. **Jalankan bot**:
 
-4.Jalankan bot:
    ```bash
-   node index.js
-
+   node index.
