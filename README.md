@@ -19,8 +19,8 @@ Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalank
    ```bash
    npm install
 3. **Masukkan akun ke dalam** account.json dengan format seperti ini:
-      ```json
- [
+```json
+[
   {
     "email": "youremail@example.com",
     "refresh_token": "your_refresh_token"
@@ -30,4 +30,4 @@ Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalank
 4. **Jalankan bot**:
 
    ```bash
-   node index.
+   node index.js
