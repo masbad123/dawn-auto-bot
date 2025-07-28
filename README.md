@@ -1,16 +1,14 @@
 # Dawn Auto Bot
 
-Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalankan **keep-alive** untuk mempertahankan sesi login aktif.
+Bot otomatis untuk **login ke Dawn**, melakukan **refresh token**, dan menjalankan **keep-alive** session.
 
 ## ✨ Fitur
-- ✅ Login otomatis via email & password
-- 🔄 Refresh token otomatis saat expired
-- 🟢 Loop keep-alive session tiap 60 detik
-- 🧠 Penyimpanan akun dalam file `account.json`
+- ✅ Login otomatis via refresh token
+- 🔄 Refresh token otomatis
+- 🟢 Keep-alive loop (tiap 1 menit)
 
-## 📦 Cara Install
+## 🧠 Cara Pakai
 
-```bash
-git clone https://github.com/masbad123/dawn-auto-bot
-cd dawn-auto-bot
-npm install
+1. **Install dependency**:
+   ```bash
+   npm install
