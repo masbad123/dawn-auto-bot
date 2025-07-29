@@ -2,106 +2,74 @@ require("dotenv").config();
 const axios = require("axios");
 const fs = require("fs");
 
-const ACCOUNT_FILE = "./account.json";
+const EMAIL = process.env.EMAIL;
+const PASSWORD = process.env.PASSWORD;
 
-/**
- * Login dengan email dan password, simpan token dan refresh_token.
- */
-async function loginWithEmailPassword(email, password) {
-  try {
-    const res = await axios.post("https://api.dawn.gg/v1/auth/login", { email, password });
-    const { token, refresh_token, user } = res.data;
-    fs.writeFileSync(
-      ACCOUNT_FILE,
-      JSON.stringify({ email: user.email, token, refresh_token }, null, 2)
-    );
-    console.log("✅ Login sukses untuk:", user.email);
-    return { token, refresh_token };
-  } catch (err) {
-    console.error("❌ Gagal login:", err.response?.data || err.message);
-    return null;
-  }
-}
+const KEEPALIVE_URL = "https://www.aeropres.in/chromeapi/dawn/v1/userreward/keepalive";
+const GETPOINTS_URL = "https://www.aeropres.in/api/atom/v1/userreferral/getpoint";
 
-/**
- * Refresh token menggunakan refresh_token.
- */
-async function refreshToken(email, refreshToken) {
+// Login function (dummy, sesuaikan dengan kebutuhan endpoint sebenarnya)
+async function login() {
   try {
-    const res = await axios.post("https://api.dawn.gg/v1/auth/refresh", { refresh_token: refreshToken });
-    const newToken = res.data.token;
-    const user = res.data.user;
-    fs.writeFileSync(
-      ACCOUNT_FILE,
-      JSON.stringify({ email: user.email, token: newToken, refresh_token: refreshToken }, null, 2)
-    );
-    console.log("�� Token di-refresh untuk:", user.email);
-    return newToken;
-  } catch (err) {
-    console.error("❌ Gagal refresh token:", err.response?.data || err.message);
-    return null;
-  }
-}
-
-/**
- * Keep-alive request untuk memastikan token tetap aktif.
- */
-async function keepAlive(token, email) {
-  try {
-    await axios.get("https://api.dawn.gg/v1/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
+    // Sesuaikan jika butuh endpoint login API
+    const res = await axios.post("https://www.aeropres.in/api/login", {
+      email: EMAIL,
+      password: PASSWORD,
     });
-    console.log("🟢 Keep-alive berhasil:", email);
+    const token = res.data.token;
+    fs.writeFileSync("account.json", JSON.stringify({ token }, null, 2));
+    console.log("✅ Login berhasil");
+    return token;
   } catch (err) {
-    console.error("❌ Gagal keep-alive:", err.response?.status || err.message);
+    console.error("❌ Gagal login:", err.message);
+    return null;
   }
 }
 
-/**
- * Main workflow
- */
+async function keepAlive(token) {
+  try {
+    const res = await axios.post(
+      KEEPALIVE_URL,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log("✅ Keepalive success:", res.data);
+  } catch (err) {
+    console.error("❌ Keepalive error:", err.message);
+  }
+}
+
+async function getPoints(token) {
+  try {
+    const res = await axios.get(GETPOINTS_URL, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log("🎯 Points:", res.data);
+  } catch (err) {
+    console.error("❌ Get points error:", err.message);
+  }
+}
+
 async function main() {
-  const email = process.env.EMAIL;
-  const password = process.env.PASSWORD;
-
-  if (!email || !password) {
-    console.error("❌ EMAIL dan PASSWORD belum diatur di .env");
-    return;
+  let token = null;
+  try {
+    const saved = JSON.parse(fs.readFileSync("account.json", "utf8"));
+    token = saved.token;
+  } catch {
+    token = await login();
   }
 
-  let account;
-  if (!fs.existsSync(ACCOUNT_FILE)) {
-    const login = await loginWithEmailPassword(email, password);
-    if (!login) return;
-    account = login;
-  } else {
-    account = JSON.parse(fs.readFileSync(ACCOUNT_FILE, "utf8"));
-  }
+  if (!token) return;
 
-  let { token, refresh_token } = account;
+  // Keepalive tiap 1 menit
+  setInterval(() => keepAlive(token), 60 * 1000);
 
-  // Refresh token setiap 30 menit
-  setInterval(async () => {
-    const newToken = await refreshToken(email, refresh_token);
-    if (newToken) {
-      token = newToken;
-    } else {
-      console.error("Gagal refresh token, coba login ulang...");
-      const login = await loginWithEmailPassword(email, password);
-      if (login) {
-        token = login.token;
-        refresh_token = login.refresh_token;
-      }
-    }
-  }, 30 * 60 * 1000);
+  // Get points tiap 10 menit
+  setInterval(() => getPoints(token), 10 * 60 * 1000);
 
-  // Keep alive setiap 1 menit
-  setInterval(() => {
-    keepAlive(token, email);
-  }, 60 * 1000);
-
-  // Keep alive pertama kali
-  keepAlive(token, email);
+  // Jalankan pertama kali
+  keepAlive(token);
+  getPoints(token);
 }
 
 main();

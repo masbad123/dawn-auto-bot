@@ -1,4 +1,3 @@
-.env
-.env.example
-account.json
 node_modules/
+.env
+account.json
